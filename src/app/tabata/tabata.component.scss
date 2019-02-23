@@ -1,0 +1,84 @@
+#app-tabata {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+}
+.tabata-card-row-100 {
+    width: 100%;
+    min-width: 125px;
+    margin: 5px 0 5px 0;
+    .mat-card {
+        width: 85%;
+        margin: auto;
+    }
+}
+.tabata-card-row-50 {
+    width: 50%;
+    min-width: 250px;
+    margin: 5px 0 5px 0;
+    .mat-card {
+        width: 85%;
+        margin: auto;
+    }
+}
+.tabata-card-row-25 {
+    width: 25%;
+    min-width: 125px;
+    margin: 5px 0 5px 0;
+    .mat-card {
+        width: 85%;
+        margin: auto;
+    }
+}
+.tabata-card-input {
+    .mat-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        .mat-icon {
+            margin-right: 5px;
+        }
+    }
+}
+.tabata-card-countdown {
+    &.mat-card {
+        margin-top: 6px !important;
+        height: 24px;
+    }
+    .mat-card {
+        height: 24px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+    }
+}
+.tabata-card-counter {
+    .mat-card {
+        display: flex;
+        justify-content: space-around;
+        .mat-card {
+            margin: 0 5px 0 5px;
+            width: 50%;
+        }
+    }
+}
+.mat-list-base {
+    padding-top: 0;
+}
+.tabata-butoon-base {
+    display: flex;
+    justify-content: space-around;
+    button {
+        width: 45%;
+        max-width: 300px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    // .tabata-card-countdown {
+    //     margin-top: 0;
+    // }
+}
