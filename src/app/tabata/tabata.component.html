@@ -3,7 +3,8 @@
         <mat-button-toggle-group      
             name="fontStyle"
             aria-label="Font Style"
-            [(ngModel)]="toggleButton">
+            [(ngModel)]="toggleButton"
+            [disabled]="tabataData[toggleButton].time.invalid">
             <mat-button-toggle 
                 *ngFor="let input of tabataList"
                 [value]="input">
@@ -18,11 +19,15 @@
             <form>
                 <mat-form-field>
                     <input 
-                        matInput 
+                        matInput
                         [placeholder]="tabataData[toggleButton].title"
-                        [(ngModel)]="tabataData[toggleButton].time"
-                        [name]="tabataData[toggleButton].name"
-                        [disabled]="status !== 'origin'">
+                        [formControl]="tabataData[toggleButton].time"
+                        [name]="tabataData[toggleButton].name">
+                    <mat-error 
+                        *ngIf="tabataData[toggleButton].time.hasError('pattern') || tabataData[toggleButton].time.hasError('required')"
+                        class="tabata-errormessagge">
+                        請輸入<strong>數字</strong>
+                    </mat-error>
                 </mat-form-field>
             </form>
         </mat-card>
@@ -33,7 +38,7 @@
                 <mat-list>
                     <mat-list-item>{{nowLoopTime}}</mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item>{{tabataData.loopTime.time}}(個)</mat-list-item>
+                    <mat-list-item>{{tabataData.loopTime.time.value}}(個)</mat-list-item>
                 </mat-list>
             </mat-card>
             <mat-card *ngIf="!isMobile">
@@ -61,7 +66,7 @@
                 <mat-list>
                     <mat-list-item>{{nowGroupTime}}</mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item>{{tabataData.groupTime.time}}(組)</mat-list-item>
+                    <mat-list-item>{{tabataData.groupTime.time.value}}(組)</mat-list-item>
                 </mat-list>
             </mat-card>
         </mat-card>
@@ -90,7 +95,12 @@
         </mat-card>
     </div>
     <div class="tabata-buttons tabata-buttons-control">
-        <button (click)="control('run')" *ngIf="status === 'origin'" mat-raised-button color="primary">
+        <button
+            *ngIf="status === 'origin'"
+            (click)="control('run'); timeInputDisabled()"
+            [disabled]="tabataData[toggleButton].time.invalid"
+            mat-raised-button
+            color="primary">
             <mat-icon>play_arrow</mat-icon>開始
         </button>
         <button (click)="control('pause')" *ngIf="status === 'run'" mat-raised-button color="primary">
@@ -102,6 +112,6 @@
         <button (click)="control('replay')" *ngIf="status === 'finish'" mat-raised-button color="primary">
             <mat-icon>replay</mat-icon>重新
         </button>
-        <button (click)="cancel()" mat-raised-button><mat-icon>stop</mat-icon>取消</button>
+        <button (click)="cancel(); timeInputEnabled()" mat-raised-button><mat-icon>stop</mat-icon>取消</button>
     </div>
 </div>
