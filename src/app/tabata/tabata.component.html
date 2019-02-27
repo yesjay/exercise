@@ -1,37 +1,32 @@
-<div id="app-tabata">
-    <div 
-        [ngClass]="{'tabata-card-row-50': !isMobile, 'tabata-card-row-100': isMobile}"
-        class="tabata-card-input"
-        *ngFor="let input of tabataList">
+<div class="tabata">
+    <div class="tabata-buttons tabata-toggle-buttons">
+        <mat-button-toggle-group      
+            name="fontStyle"
+            aria-label="Font Style"
+            [(ngModel)]="toggle">
+            <mat-button-toggle 
+                *ngFor="let input of tabataList"
+                [value]="input">
+                <mat-icon>{{tabataData[input].icon}}</mat-icon>
+                <span *ngIf="!isMobile">{{tabataData[input].title}}</span>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+    <div class="tabata-card tabata-inputs">
         <mat-card>
-            <mat-icon>{{tabataData[input].icon}}</mat-icon>
+            <mat-icon>{{tabataData[toggle].icon}}</mat-icon>
             <form>
                 <mat-form-field>
                     <input 
                         matInput 
-                        [placeholder]="tabataData[input].title"
-                        [(ngModel)]="tabataData[input].time"
-                        [name]="tabataData[input].name">
+                        [placeholder]="tabataData[toggle].title"
+                        [(ngModel)]="tabataData[toggle].time"
+                        [name]="tabataData[toggle].name">
                 </mat-form-field>
             </form>
         </mat-card>
-        <mat-card class="tabata-card-countdown" *ngIf="input === 'groupTime' && !isMobile">
-            <div *ngIf="countdownNumber === 0">
-                <span *ngIf="step === 'ready'">Ready!</span>
-                <span *ngIf="step === 'action'">Go!</span>
-                <span *ngIf="step === 'rest'">Stop!</span>
-            </div>
-            <div *ngIf="countdownNumber != 0">
-                <span *ngIf="step === 'ready'">預備</span>
-                <span *ngIf="step === 'action'">運動</span>
-                <span *ngIf="step === 'rest'">休息</span>
-                {{countdownNumber}} 秒
-            </div>
-        </mat-card>
     </div>
-    <div 
-        [ngClass]="{'tabata-card-row-50': !isMobile, 'tabata-card-row-100': isMobile}"
-        class="tabata-card-counter"> 
+    <div class="tabata-card tabata-counters"> 
         <mat-card>
             <mat-card>
                 <mat-list>
@@ -39,6 +34,26 @@
                     <mat-divider></mat-divider>
                     <mat-list-item>{{tabataData.loopTime.time}}(個)</mat-list-item>
                 </mat-list>
+            </mat-card>
+            <mat-card *ngIf="!isMobile">
+                <div class="tabata-countdown-progress-spinner">
+                    <div *ngIf="countdownNumber === 0">
+                        <span *ngIf="step === 'ready'">Ready!</span>
+                        <span *ngIf="step === 'action'">Go!</span>
+                        <span *ngIf="step === 'rest'">Stop!</span>
+                    </div>
+                    <div *ngIf="countdownNumber != 0">
+                        <span *ngIf="step === 'ready'">預備 </span>
+                        <span *ngIf="step === 'action'">運動 </span>
+                        <span *ngIf="step === 'rest'">休息 </span>
+                        <span>{{countdownNumber}} 秒</span>
+                    </div>
+                    <mat-progress-spinner 
+                        [ngClass]="{'tabata-circle-action': step === 'action'}"
+                        mode="determinate"
+                        [value]="progressBar">
+                    </mat-progress-spinner>
+                </div>
             </mat-card>
             <mat-card>
                 <mat-list>
@@ -49,23 +64,29 @@
             </mat-card>
         </mat-card>
     </div>
-    <div *ngIf="isMobile" class="tabata-card-row-100 tabata-card-countdown">
+    <div *ngIf="isMobile" class="tabata-card tabata-countdown">
         <mat-card>
-            <div *ngIf="countdownNumber === 0">
-                <span *ngIf="step === 'ready'">Ready!</span>
-                <span *ngIf="step === 'action'">Go!</span>
-                <span *ngIf="step === 'rest'">Stop!</span>
-            </div>
-            <div *ngIf="countdownNumber != 0">
-                <span *ngIf="step === 'ready'">預備</span>
-                <span *ngIf="step === 'action'">運動</span>
-                <span *ngIf="step === 'rest'">休息</span>
-                {{countdownNumber}} 秒
+            <div class="tabata-countdown-progress-spinner">
+                <div *ngIf="countdownNumber === 0">
+                    <span *ngIf="step === 'ready'">Ready!</span>
+                    <span *ngIf="step === 'action'">Go!</span>
+                    <span *ngIf="step === 'rest'">Stop!</span>
+                </div>
+                <div *ngIf="countdownNumber != 0">
+                    <span *ngIf="step === 'ready'">預備 </span>
+                    <span *ngIf="step === 'action'">運動 </span>
+                    <span *ngIf="step === 'rest'">休息 </span>
+                    <span>{{countdownNumber}} 秒</span>
+                </div>
+                <mat-progress-spinner 
+                    [ngClass]="{'tabata-circle-action': step === 'action'}"
+                    mode="determinate"
+                    [value]="progressBar">
+                </mat-progress-spinner>
             </div>
         </mat-card>
     </div>
-    
-    <div class="tabata-card-row-100 tabata-butoon-base">
+    <div class="tabata-buttons tabata-buttons-control">
         <button (click)="control('run')" *ngIf="status === 'orign'" mat-raised-button color="primary">
             <mat-icon>play_arrow</mat-icon>開始
         </button>

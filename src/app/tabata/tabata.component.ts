@@ -13,18 +13,17 @@ import { TimeInput } from './shared/tabata.type';
 })
 export class TabataComponent implements OnInit {
   tabataData: any;
+  timeSubscriber: any;
+  isMobile: boolean;
+  isPause: boolean;
   tabataList: Array<string>;
   nowLoopTime = 0;
   nowGroupTime = 0;
-  reciprocalTime = 0;
-  status = 'orign';
-  isMobile: boolean;
-  isPause: boolean;
-  step = 'ready';
-  opener = false;
-  meter;
   countdownNumber = 0;
-  timeSubscriber: any;
+  progressBar = 100;
+  status = 'orign';
+  step = 'ready';
+  toggle = 'readyTime';
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -63,7 +62,7 @@ export class TabataComponent implements OnInit {
       },
       groupTime: {
         icon: 'group_work',
-        title: '組數(輪)',
+        title: '組數',
         name: 'groupTime',
         time: 1,
       },
@@ -97,12 +96,14 @@ export class TabataComponent implements OnInit {
     if (this.isPause) {
       this.timeSubscriber = this.countDown(this.countdownNumber).subscribe((nowTime: number) => {
         this.countdownNumber = nowTime;
+        this.progressBar = this.getProgressValue(nowTime);
         this.checkTimeout();
       });
       this.isPause = false;
     } else {
       this.timeSubscriber = this.countDown().subscribe((nowTime: number) => {
         this.countdownNumber = nowTime;
+        this.progressBar = this.getProgressValue(nowTime);
         this.checkTimeout();
       });
     }
@@ -117,6 +118,13 @@ export class TabataComponent implements OnInit {
     );
   }
 
+  private getProgressValue(nowTime: number): number {
+    const actionTime = this.tabataData.actionTime.time;
+    return this.step === 'action' ?
+      Math.floor(((actionTime - nowTime) / actionTime) * 100) :
+      100;
+  }
+
   private checkTimeout() {
     if (this.countdownNumber === 0) {
       this.timeSubscriber.unsubscribe();
@@ -129,7 +137,8 @@ export class TabataComponent implements OnInit {
   private countStepTime() {
     if (this.step === 'action') {
       this.nowLoopTime += 1;
-      this.nowGroupTime = this.tabataData.loopTime.time === this.nowLoopTime ?
+      console.log(typeof this.nowLoopTime);
+      this.nowGroupTime = parseInt(this.tabataData.loopTime.time, 10) === this.nowLoopTime ?
       this.nowGroupTime + 1 : this.nowGroupTime;
     }
   }
@@ -140,8 +149,11 @@ export class TabataComponent implements OnInit {
         delay(1000),
       ).subscribe((nowTime: number) => {
         this.countdownNumber = nowTime;
+        this.progressBar = this.getProgressValue(nowTime);
         this.checkTimeout();
       });
+    } else if (this.nowGroupTime === this.tabataData.groupTime.time) {
+      this.cancel();
     }
   }
 
