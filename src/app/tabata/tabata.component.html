@@ -3,7 +3,7 @@
         <mat-button-toggle-group      
             name="fontStyle"
             aria-label="Font Style"
-            [(ngModel)]="toggle">
+            [(ngModel)]="toggleButton">
             <mat-button-toggle 
                 *ngFor="let input of tabataList"
                 [value]="input">
@@ -14,14 +14,15 @@
     </div>
     <div class="tabata-card tabata-inputs">
         <mat-card>
-            <mat-icon>{{tabataData[toggle].icon}}</mat-icon>
+            <mat-icon>{{tabataData[toggleButton].icon}}</mat-icon>
             <form>
                 <mat-form-field>
                     <input 
                         matInput 
-                        [placeholder]="tabataData[toggle].title"
-                        [(ngModel)]="tabataData[toggle].time"
-                        [name]="tabataData[toggle].name">
+                        [placeholder]="tabataData[toggleButton].title"
+                        [(ngModel)]="tabataData[toggleButton].time"
+                        [name]="tabataData[toggleButton].name"
+                        [disabled]="status !== 'origin'">
                 </mat-form-field>
             </form>
         </mat-card>
@@ -41,6 +42,7 @@
                         <span *ngIf="step === 'ready'">Ready!</span>
                         <span *ngIf="step === 'action'">Go!</span>
                         <span *ngIf="step === 'rest'">Stop!</span>
+                        <span *ngIf="step === 'end'">Finish!</span>
                     </div>
                     <div *ngIf="countdownNumber != 0">
                         <span *ngIf="step === 'ready'">預備 </span>
@@ -71,6 +73,7 @@
                     <span *ngIf="step === 'ready'">Ready!</span>
                     <span *ngIf="step === 'action'">Go!</span>
                     <span *ngIf="step === 'rest'">Stop!</span>
+                    <span *ngIf="step === 'end'">Finish!</span>
                 </div>
                 <div *ngIf="countdownNumber != 0">
                     <span *ngIf="step === 'ready'">預備 </span>
@@ -87,7 +90,7 @@
         </mat-card>
     </div>
     <div class="tabata-buttons tabata-buttons-control">
-        <button (click)="control('run')" *ngIf="status === 'orign'" mat-raised-button color="primary">
+        <button (click)="control('run')" *ngIf="status === 'origin'" mat-raised-button color="primary">
             <mat-icon>play_arrow</mat-icon>開始
         </button>
         <button (click)="control('pause')" *ngIf="status === 'run'" mat-raised-button color="primary">
@@ -95,6 +98,9 @@
         </button>
         <button (click)="control('run')" *ngIf="status === 'pause'" mat-raised-button color="primary">
             <mat-icon>play_arrow</mat-icon>繼續
+        </button>
+        <button (click)="control('replay')" *ngIf="status === 'finish'" mat-raised-button color="primary">
+            <mat-icon>replay</mat-icon>重新
         </button>
         <button (click)="cancel()" mat-raised-button><mat-icon>stop</mat-icon>取消</button>
     </div>

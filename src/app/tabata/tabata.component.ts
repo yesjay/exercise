@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, timer } from 'rxjs';
 import { map, take, delay } from 'rxjs/operators';
@@ -21,9 +22,10 @@ export class TabataComponent implements OnInit {
   nowGroupTime = 0;
   countdownNumber = 0;
   progressBar = 100;
-  status = 'orign';
+  status = 'origin';
   step = 'ready';
-  toggle = 'readyTime';
+  toggleButton = 'readyTime';
+  countdownText = 'Ready!';
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -70,51 +72,56 @@ export class TabataComponent implements OnInit {
     this.tabataList = Object.keys(this.tabataData);
   }
 
-  control(status) {
-    this.status = status;
-    this.transeStatus(status);
+  control(status: string): void {
+    if (status === 'replay') {
+      this.cancel();
+      this.controlCountDown('run');
+      this.status = 'run';
+    } else {
+      this.status = status;
+      this.controlCountDown(status);
+    }
   }
 
-  cancel() {
-    this.status = 'orign';
+  cancel(): void {
+    this.status = 'origin';
     this.step = 'ready';
     this.nowGroupTime = 0;
     this.nowLoopTime = 0;
     this.countdownNumber = 0;
+    this.isPause = false;
+    this.progressBar = 100;
     this.timeSubscriber.unsubscribe();
   }
 
-  private transeStatus(status: string) {
+  private controlCountDown(status: string): void {
     if (status === 'run') {
       this.runCountDown();
     } else if (status === 'pause') {
-      this.runPause();
+      this.isPause = true;
+      this.timeSubscriber.unsubscribe();
     }
   }
 
   private runCountDown(): void {
-    if (this.isPause) {
-      this.timeSubscriber = this.countDown(this.countdownNumber).subscribe((nowTime: number) => {
-        this.countdownNumber = nowTime;
-        this.progressBar = this.getProgressValue(nowTime);
-        this.checkTimeout();
-      });
-      this.isPause = false;
-    } else {
-      this.timeSubscriber = this.countDown().subscribe((nowTime: number) => {
-        this.countdownNumber = nowTime;
-        this.progressBar = this.getProgressValue(nowTime);
-        this.checkTimeout();
-      });
-    }
+    const timeInput = this.isPause && this.countdownNumber !== 0 ? this.countdownNumber : this.tabataData[this.step + 'Time'].time;
+    this.timeSubscribe(0, timeInput);
+    this.isPause = this.isPause ? false : this.isPause;
   }
 
-  private countDown(time?: number): Observable<number> {
-    const startTime = time ? time : this.getStepTime(),
-          frequency = 100;
-    return timer(0, frequency).pipe(
-      map((eachTime: number) => startTime - eachTime),
-      take(startTime + 1)
+  private timeSubscribe(delayTime: number, time: number): void {
+    this.timeSubscriber = this.countDown(delayTime, time).subscribe((nowTime: number) => {
+      this.countdownNumber = nowTime;
+      this.progressBar = this.getProgressValue(nowTime);
+      this.checkTimeout();
+    });
+  }
+
+  private countDown(delayTime: number, time: number): Observable<number> {
+    const frequency = 100;
+    return timer(delayTime, frequency).pipe(
+      map((eachTime: number) => time - eachTime),
+      take(time + 1)
     );
   }
 
@@ -125,56 +132,31 @@ export class TabataComponent implements OnInit {
       100;
   }
 
-  private checkTimeout() {
+  private checkTimeout(): void {
     if (this.countdownNumber === 0) {
       this.timeSubscriber.unsubscribe();
       this.countStepTime();
-      this.transStep();
       this.runNextStep();
     }
   }
 
-  private countStepTime() {
+  private countStepTime(): void {
     if (this.step === 'action') {
       this.nowLoopTime += 1;
-      console.log(typeof this.nowLoopTime);
       this.nowGroupTime = parseInt(this.tabataData.loopTime.time, 10) === this.nowLoopTime ?
       this.nowGroupTime + 1 : this.nowGroupTime;
     }
   }
 
-  private runNextStep() {
-    if (this.nowGroupTime !== this.tabataData.groupTime.time) {
-      this.timeSubscriber = this.countDown().pipe(
-        delay(1000),
-      ).subscribe((nowTime: number) => {
-        this.countdownNumber = nowTime;
-        this.progressBar = this.getProgressValue(nowTime);
-        this.checkTimeout();
-      });
-    } else if (this.nowGroupTime === this.tabataData.groupTime.time) {
-      this.cancel();
+  private runNextStep(): void {
+    if (this.nowGroupTime === this.tabataData.groupTime.time) {
+      this.status = 'finish';
+      this.step = 'end';
+    } else {
+      this.step = this.step === 'action' ? 'rest' : 'action';
+      const timeInput = this.isPause ? this.countdownNumber : this.tabataData[this.step + 'Time'].time,
+            delayTime = 1000;
+      this.timeSubscribe(delayTime, timeInput);
     }
-  }
-
-  private transStep() {
-    this.step = this.step === 'action' ? 'rest' : 'action';
-  }
-
-  private runPause(): void {
-    this.isPause = true;
-    this.timeSubscriber.unsubscribe();
-  }
-
-  private getStepTime(): number {
-    let time;
-    if (this.step === 'ready') {
-      time = this.tabataData.readyTime.time;
-    } else if (this.step === 'action') {
-      time = this.tabataData.actionTime.time;
-    } else if (this.step === 'rest') {
-      time = this.tabataData.restTime.time;
-    }
-    return time;
   }
 }
