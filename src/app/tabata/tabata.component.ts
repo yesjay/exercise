@@ -127,6 +127,7 @@ export class TabataComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'confirm') {
         this.resetSetting();
+        this.timeInputEnabled();
       } else {
         const timeInput = this.isPause && this.countdownNumber !== 0 ?
           this.countdownNumber :
