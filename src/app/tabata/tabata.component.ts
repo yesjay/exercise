@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Observable, timer, Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+
+import { DialogComponent } from '../shared/component/index';
 
 import { TabataTimeInputs } from './shared/tabata.type';
 
@@ -13,25 +16,26 @@ import { TabataTimeInputs } from './shared/tabata.type';
   styleUrls: ['./tabata.component.scss']
 })
 export class TabataComponent implements OnInit {
-  tabataData: TabataTimeInputs;
-  timeSubscriber: Subscription;
   isMobile: boolean;
   isPause: boolean;
+  nowLoopTime: number;
+  nowGroupTime: number;
+  countdownNumber: number;
+  progressBar: number;
+  status: string;
+  step: string;
   tabataList: Array<string>;
-  nowLoopTime = 0;
-  nowGroupTime = 0;
-  countdownNumber = 0;
-  progressBar = 100;
-  status = 'origin';
-  step = 'ready';
+  tabataData: TabataTimeInputs;
+  timeSubscriber: Subscription;
   toggleButton = 'readyTime';
-  countdownText = 'Ready!';
 
   constructor(
     private breakpointObserver: BreakpointObserver,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    this.resetSetting();
     this.breakpointObserver.observe([
       '(max-width: 550px)'
     ]).subscribe(result => {
@@ -99,22 +103,45 @@ export class TabataComponent implements OnInit {
   }
 
   cancel(): void {
-    this.status = 'origin';
-    this.step = 'ready';
-    this.nowGroupTime = 0;
-    this.nowLoopTime = 0;
-    this.countdownNumber = 0;
-    this.isPause = false;
-    this.progressBar = 100;
-    this.timeSubscriber.unsubscribe();
+    this.runPause();
+    this.openDialog();
+  }
+
+  timeInputDisabled(): void {
+    this.tabataList.forEach((time: string) => {
+      this.tabataData[time].time.disable();
+    });
+  }
+
+  timeInputEnabled(): void {
+    this.tabataList.forEach((time: string) => {
+      this.tabataData[time].time.enable();
+    });
+  }
+
+  private openDialog(): void {
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: '250px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'confirm') {
+        this.resetSetting();
+      } else {
+        const timeInput = this.isPause && this.countdownNumber !== 0 ?
+          this.countdownNumber :
+          this.tabataData[this.step + 'Time'].time.value;
+        this.timeSubscribe(0, timeInput);
+        this.isPause = false;
+      }
+    });
   }
 
   private controlCountDown(status: string): void {
     if (status === 'run') {
       this.runCountDown();
     } else if (status === 'pause') {
-      this.isPause = true;
-      this.timeSubscriber.unsubscribe();
+      this.runPause();
     }
   }
 
@@ -122,6 +149,13 @@ export class TabataComponent implements OnInit {
     const timeInput = this.isPause && this.countdownNumber !== 0 ? this.countdownNumber : this.tabataData[this.step + 'Time'].time.value;
     this.timeSubscribe(0, timeInput);
     this.isPause = this.isPause ? false : this.isPause;
+  }
+
+  private runPause(): void {
+    this.isPause = true;
+    if (this.timeSubscriber) {
+      this.timeSubscriber.unsubscribe();
+    }
   }
 
   private timeSubscribe(delayTime: number, time: number): void {
@@ -133,7 +167,7 @@ export class TabataComponent implements OnInit {
   }
 
   private countDown(delayTime: number, time: number): Observable<number> {
-    const frequency = 100;
+    const frequency = 1000;
     return timer(delayTime, frequency).pipe(
       map((eachTime: number) => time - eachTime),
       take(time + 1)
@@ -175,15 +209,13 @@ export class TabataComponent implements OnInit {
     }
   }
 
-  timeInputDisabled(): void {
-    this.tabataList.forEach((time: string) => {
-      this.tabataData[time].time.disable();
-    });
-  }
-
-  timeInputEnabled(): void {
-    this.tabataList.forEach((time: string) => {
-      this.tabataData[time].time.enable();
-    });
+  private resetSetting() {
+    this.status = 'origin';
+    this.step = 'ready';
+    this.nowGroupTime = 0;
+    this.nowLoopTime = 0;
+    this.countdownNumber = 0;
+    this.isPause = false;
+    this.progressBar = 100;
   }
 }

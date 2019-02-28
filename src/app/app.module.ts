@@ -11,13 +11,13 @@ import { AppComponent } from './app.component';
 import { TabataComponent } from './tabata/tabata.component';
 
 // shared
-import { TimeInputComponent } from './shared/component/time-input/time-input.component';
+import { DialogComponent } from './shared/component/index';
 
 @NgModule({
   declarations: [
     AppComponent,
     TabataComponent,
-    TimeInputComponent
+    DialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -28,6 +28,9 @@ import { TimeInputComponent } from './shared/component/time-input/time-input.com
     ReactiveFormsModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    DialogComponent,
+  ]
 })
 export class AppModule { }

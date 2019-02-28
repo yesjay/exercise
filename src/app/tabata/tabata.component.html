@@ -112,6 +112,11 @@
         <button (click)="control('replay')" *ngIf="status === 'finish'" mat-raised-button color="primary">
             <mat-icon>replay</mat-icon>重新
         </button>
-        <button (click)="cancel(); timeInputEnabled()" mat-raised-button><mat-icon>stop</mat-icon>取消</button>
+        <button 
+            (click)="cancel(); timeInputEnabled()"
+            [disabled]="status === 'origin'"
+            mat-raised-button>
+            <mat-icon>stop</mat-icon>取消
+        </button>
     </div>
 </div>
