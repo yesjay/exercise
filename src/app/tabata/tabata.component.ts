@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable, timer } from 'rxjs';
-import { map, take, delay } from 'rxjs/operators';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Observable, timer, Subscription } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
-import { TimeInput } from './shared/tabata.type';
+import { TabataTimeInputs } from './shared/tabata.type';
 
 
 @Component({
@@ -13,8 +13,8 @@ import { TimeInput } from './shared/tabata.type';
   styleUrls: ['./tabata.component.scss']
 })
 export class TabataComponent implements OnInit {
-  tabataData: any;
-  timeSubscriber: any;
+  tabataData: TabataTimeInputs;
+  timeSubscriber: Subscription;
   isMobile: boolean;
   isPause: boolean;
   tabataList: Array<string>;
