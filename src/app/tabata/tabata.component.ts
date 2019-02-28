@@ -9,7 +9,6 @@ import { DialogComponent } from '../shared/component/index';
 
 import { TabataTimeInputs } from './shared/tabata.type';
 
-
 @Component({
   selector: 'app-tabata',
   templateUrl: './tabata.component.html',
@@ -164,6 +163,7 @@ export class TabataComponent implements OnInit {
       this.countdownNumber = nowTime;
       this.progressBar = this.getProgressValue(nowTime);
       this.checkTimeout();
+      this.controlBeep(this.countdownNumber);
     });
   }
 
@@ -180,6 +180,41 @@ export class TabataComponent implements OnInit {
     return this.step === 'action' ?
       Math.floor(((actionTime - nowTime) / actionTime) * 100) :
       100;
+  }
+
+  private controlBeep(time: number) {
+    const finish = '../../assets/audio/FINISH.mp3',
+          oneSecond = '../../assets/audio/short1.mp3',
+          twoSecond = '../../assets/audio/short2.mp3',
+          threeSecond = '../../assets/audio/short3.mp3',
+          startAction = '../../assets/audio/shortgo.mp3',
+          takeARest = '../../assets/audio/shortrest.mp3',
+          audio = new Audio();
+    if (this.step === 'action') {
+      if (time === 0) {
+        this.playAudio(audio, startAction);
+      }
+    } else if (this.step === 'rest' || this.step === 'ready') {
+      if (time === 3) {
+        this.playAudio(audio, threeSecond);
+      } else if (time === 2) {
+        this.playAudio(audio, twoSecond);
+      } else if (time === 1) {
+        this.playAudio(audio, oneSecond);
+      } else if (time === 0 && this.nowGroupTime) {
+        this.playAudio(audio, takeARest);
+      }
+    } else if (this.step === 'end') {
+      if (time === 0) {
+        this.playAudio(audio, finish);
+      }
+    }
+  }
+
+  private playAudio(audio: HTMLAudioElement, src: string): void {
+    audio.src = src;
+    audio.load();
+    audio.play();
   }
 
   private checkTimeout(): void {
