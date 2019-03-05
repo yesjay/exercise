@@ -6,6 +6,7 @@ import { Observable, timer, Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 import { DialogComponent } from '../shared/component/index';
+import { TabataCounterService } from './shared/service/tabata-counter.service';
 
 import { TabataTimeInputs } from './shared/tabata.type';
 
@@ -30,7 +31,8 @@ export class TabataComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private tabata: TabataCounterService,
   ) { }
 
   ngOnInit() {
@@ -88,6 +90,7 @@ export class TabataComponent implements OnInit {
       },
     };
     this.tabataList = Object.keys(this.tabataData);
+    this.tabata.loadAllAudio();
   }
 
   control(status: string): void {
@@ -183,38 +186,26 @@ export class TabataComponent implements OnInit {
   }
 
   private controlBeep(time: number) {
-    const finish = '../../assets/audio/FINISH.mp3',
-          oneSecond = '../../assets/audio/short1.mp3',
-          twoSecond = '../../assets/audio/short2.mp3',
-          threeSecond = '../../assets/audio/short3.mp3',
-          startAction = '../../assets/audio/shortgo.mp3',
-          takeARest = '../../assets/audio/shortrest.mp3',
-          audio = new Audio();
+    const audio = new Audio();
     if (this.step === 'action') {
       if (time === 0) {
-        this.playAudio(audio, startAction);
+        this.tabata.playGoAudio();
       }
     } else if (this.step === 'rest' || this.step === 'ready') {
       if (time === 3) {
-        this.playAudio(audio, threeSecond);
+        this.tabata.playThreeAudio();
       } else if (time === 2) {
-        this.playAudio(audio, twoSecond);
+        this.tabata.playTwoAudio();
       } else if (time === 1) {
-        this.playAudio(audio, oneSecond);
-      } else if (time === 0 && this.nowGroupTime) {
-        this.playAudio(audio, takeARest);
+        this.tabata.playOneAudio();
+      } else if (time === 0 && this.nowGroupTime !== this.tabataData.groupTime.time.value) {
+        this.tabata.playRestAudio();
       }
     } else if (this.step === 'end') {
       if (time === 0) {
-        this.playAudio(audio, finish);
+        this.tabata.playFinishAudio();
       }
     }
-  }
-
-  private playAudio(audio: HTMLAudioElement, src: string): void {
-    audio.src = src;
-    audio.load();
-    audio.play();
   }
 
   private checkTimeout(): void {
