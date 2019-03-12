@@ -1,0 +1,35 @@
+.menu-userInfo {
+    padding: 0 16px 0 16px;
+    display: flex;
+    align-items: center;
+    .user-img {
+        margin-right: 7px;
+        img {
+            border-radius: 50%;
+            width: 40px;
+            height: auto;
+        }
+    }
+}
+
+.menu-button {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon { 
+    height: 24px;
+    width: 24px;
+    margin-right: 16px;
+}
+
+.google-logo {
+    background-image: url(https://ssl.gstatic.com/gb/images/p1_254618290.png);
+    -webkit-background-size: 24px 902px;
+    background-size: 24px 902px;
+    display: inline-block;
+}
+
+.google-mark {
+    background-position:0 -1392px
+}
