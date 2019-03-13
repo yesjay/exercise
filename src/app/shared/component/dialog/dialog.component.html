@@ -1,5 +1,32 @@
-<p>進度會回到原始值，確定要取消嗎？</p>
-<div class="dialog-buttons" mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="'cancel'">不要</button>
-  <button mat-button [mat-dialog-close]="'confirm'" cdkFocusInitial>好</button>
+<!-- cancel -->
+<div *ngIf="data.type === 'cancel'">
+  <p>進度會回到原始值，確定要取消嗎？</p>
+  <div class="dialog-buttons" mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="'no-restart'">不要</button>
+    <button mat-button [mat-dialog-close]="'restart'" cdkFocusInitial>好</button>
+  </div>
+</div>
+
+<!-- finish -->
+<div *ngIf="data.type === 'finish'">
+  <p>已經完成一組TABATA，是否要紀錄在google日曆中？</p>
+  <div class="dialog-buttons" mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="'no-insert'">不要</button>
+    <button mat-button [mat-dialog-close]="'insert'" cdkFocusInitial>好</button>
+  </div>
+</div>
+
+<!-- information -->
+<div *ngIf="data.type === 'information'">
+  <p>說明：</p>
+  <ul>
+    <li>預備：開始運動前的準備時間，單位秒數</li>
+    <li>運動：運動時間的長度，單位秒數</li>
+    <li>休息：每段運動之間的休息時間，單位秒數</li>
+    <li>循環：一次運動加一次休息稱為一次循環</li>
+    <li>組數：一般八個循環為一組</li>
+  </ul>
+  <div class="dialog-buttons" mat-dialog-actions>
+    <button mat-button cdkFocusInitial (click)="onNoClick()">關閉</button>
+  </div>
 </div>

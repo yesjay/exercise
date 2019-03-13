@@ -1,0 +1,22 @@
+<button mat-stroked-button [matMenuTriggerFor]="menu">
+  <mat-icon>menu</mat-icon>
+</button>
+<mat-menu #menu="matMenu">
+  <div *ngIf="isVerified" class="menu-userInfo">
+    <div class="user-img">
+        <img [src]="userPhotoSrc" alt="">
+    </div>
+    <span>Hi! {{userName}}</span>
+  </div>
+  <mat-divider *ngIf="isVerified"></mat-divider>
+  <button mat-menu-item (click)="openDialog('information', '500px')">
+    <mat-icon>info</mat-icon>Information
+  </button>
+  <button *ngIf="!isVerified" class="menu-button" (click)="login()" mat-menu-item>
+    <div class="menu-icon google-logo google-mark"></div>
+    <span>Login with Google</span>
+  </button>
+  <button *ngIf="isVerified" (click)="logout()" mat-menu-item>
+    <mat-icon>lock</mat-icon>Logout
+  </button>
+</mat-menu>
