@@ -33,26 +33,26 @@ export class GoogleCalendarService {
     });
   }
 
-  addEvent() {
+  addEvent(startDate: Date) {
     const request = window.gapi.client.calendar.events.insert({
       calendarId: this.userEmail,
-      resource: this.getCalendarEvent()
+      resource: this.getCalendarEvent(startDate)
     });
 
     request.execute();
   }
 
-  private getCalendarEvent() {
+  private getCalendarEvent(startDate: Date) {
     return {
       summary: 'TABATA',
-      description: 'A chance to hear more about Google\'s developer products.',
+      description: '完成了一次TABATA！',
       start: {
-        dateTime: new Date(),
-        timeZone: 'America/Los_Angeles'
+        dateTime: startDate,
+        timeZone: 'Asia/Taipei'
       },
       end: {
         dateTime: new Date(),
-        timeZone: 'America/Los_Angeles'
+        timeZone: 'Asia/Taipei'
       },
       reminders: {
         useDefault: false,

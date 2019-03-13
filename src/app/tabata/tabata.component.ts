@@ -135,7 +135,8 @@ export class TabataComponent implements OnInit {
         this.timeSubscribe(0, timeInput);
         this.isPause = false;
       } else if (result === 'insert') {
-        this.googleCalendarService.addEvent();
+        this.googleCalendarService.addEvent(this.getStartDate());
+        window.open('https://www.google.com/calendar?tab=uc');
       }
     });
   }
@@ -245,5 +246,19 @@ export class TabataComponent implements OnInit {
     this.countdownNumber = 0;
     this.isPause = false;
     this.progressBar = 100;
+  }
+
+  private getStartDate(): Date {
+    const toDayMilliseconds = new Date().valueOf();
+    return new Date(toDayMilliseconds - this.getGroupMilliseconds());
+  }
+
+  private getGroupMilliseconds(): number {
+    const restTime = this.tabataData.restTime.time.value,
+          actionTime = this.tabataData.actionTime.time.value,
+          readyTime = this.tabataData.readyTime.time.value,
+          loopTime = this.tabataData.loopTime.time.value,
+          groupTime = this.tabataData.groupTime.time.value;
+    return ((restTime * (loopTime - 1)) + (actionTime * loopTime) + readyTime) * groupTime * 1000;
   }
 }
