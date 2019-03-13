@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Observable, timer, Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
-import { DialogComponent } from '../shared/component/index';
 import { TabataCounterService } from './shared/service/tabata-counter.service';
+import { DialogService, GoogleCalendarService } from '../shared/service';
 
 import { TabataTimeInputs } from './shared/tabata.type';
 
@@ -31,8 +30,9 @@ export class TabataComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private dialog: MatDialog,
+    private dialogService: DialogService,
     private tabata: TabataCounterService,
+    private googleCalendarService: GoogleCalendarService,
   ) { }
 
   ngOnInit() {
@@ -106,7 +106,7 @@ export class TabataComponent implements OnInit {
 
   cancel(): void {
     this.runPause();
-    this.openDialog();
+    this.openDialog('cancel');
   }
 
   timeInputDisabled(): void {
@@ -121,21 +121,22 @@ export class TabataComponent implements OnInit {
     });
   }
 
-  private openDialog(): void {
-    const dialogRef = this.dialog.open(DialogComponent, {
-      width: '250px',
-    });
+  private openDialog(dialogType: string): void {
+    const dialogRef = this.dialogService.openDialog(dialogType);
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'confirm') {
+    dialogRef.afterClosed().subscribe((result: string) => {
+      if (result === 'restart') {
         this.resetSetting();
         this.timeInputEnabled();
-      } else {
+      } else if (result === 'no-restart') {
         const timeInput = this.isPause && this.countdownNumber !== 0 ?
           this.countdownNumber :
           this.tabataData[this.step + 'Time'].time.value;
         this.timeSubscribe(0, timeInput);
         this.isPause = false;
+      } else if (result === 'insert') {
+        this.googleCalendarService.addEvent(this.getStartDate());
+        window.open('https://www.google.com/calendar?tab=uc');
       }
     });
   }
@@ -204,6 +205,7 @@ export class TabataComponent implements OnInit {
     } else if (this.step === 'end') {
       if (time === 0) {
         this.tabata.playFinishAudio();
+        this.openDialog('finish');
       }
     }
   }
@@ -244,5 +246,19 @@ export class TabataComponent implements OnInit {
     this.countdownNumber = 0;
     this.isPause = false;
     this.progressBar = 100;
+  }
+
+  private getStartDate(): Date {
+    const toDayMilliseconds = new Date().valueOf();
+    return new Date(toDayMilliseconds - this.getGroupMilliseconds());
+  }
+
+  private getGroupMilliseconds(): number {
+    const restTime = this.tabataData.restTime.time.value,
+          actionTime = this.tabataData.actionTime.time.value,
+          readyTime = this.tabataData.readyTime.time.value,
+          loopTime = this.tabataData.loopTime.time.value,
+          groupTime = this.tabataData.groupTime.time.value;
+    return ((restTime * (loopTime - 1)) + (actionTime * loopTime) + readyTime) * groupTime * 1000;
   }
 }
